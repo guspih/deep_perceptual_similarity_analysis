@@ -3,12 +3,11 @@ from cmath import exp
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import torchvision
 import torchvision.transforms as transforms
 import pytorch_lightning as pl
-from torch.utils.data import DataLoader, random_split
-from pytorch_lightning.loggers import TensorBoardLogger, WandbLogger
-from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
+from torch.utils.data import DataLoader
+from pytorch_lightning.loggers import WandbLogger
+from pytorch_lightning.callbacks import ModelCheckpoint
 import csv
 import argparse
 import pathlib
@@ -16,7 +15,7 @@ import pathlib
 # File imports
 from loss_networks import FeatureExtractor, \
     ExtractionModifier, architecture_attributes, extractor_collector
-from dataset_collector import dataset_collector, datasets
+from dataset_collector import dataset_collector
 from workspace_path import home_path
 
 # Logging and checkpointing directories
@@ -97,14 +96,16 @@ class DistanceMetric(nn.Module):
         layer_sum = layers.sum(dim=1)
         return layer_sum
 
+
 def score_2afc_batch(d0, d1, label):
     '''
     Takes 2 distance metrics and a label to compute the 2afc score and accuracy
     Args:
-        
+        d0 (tensor): The distance between reference image and image 0
+        d1 (tensor): The distance between reference image and image 1
+        label (tensor): Fraction considering image 1 as closer to reference
     '''
-    #point_five = torch.tensor([0.5])
-    #one = torch.tensor([1.0])
+
     p0_closer = d0 < d1
     p0_score =  p0_closer*(1.0-label)
     p1_score = (d1 < d0)*label
@@ -196,9 +197,6 @@ def score_jnd(data, metric):
 
         dist = metric(p0, p1).view(-1)
 
-        #if gpu:
-        #    dist = dist.cpu()
-
         sames.append(same)
         dists.append(dist)
     
@@ -221,7 +219,6 @@ def score_jnd(data, metric):
     i = torch.where(recall[1:] != recall[:-1])[0]
 
     return torch.sum((recall[i+1]-recall[i]) * precision[i+1])
-
 
 
 class Learner(pl.LightningModule):
@@ -264,10 +261,6 @@ class Learner(pl.LightningModule):
         elif not self.metric.weights is None:
             for module in self.metric.weights:
                 module.weight.data = torch.clamp(module.weight.data, min=0)
-        #for module in self.metric.modules():
-        #    if(hasattr(module, 'weight') and module.kernel_size==(1,1)):
-        #        module.weight.data = torch.clamp(module.weight.data,min=0)
-            
 
     def loss_calculation(self, batch, batch_idx, prefix='test_'):
         p0 =  batch['p0']
@@ -527,6 +520,7 @@ def main():
     parser.add_argument(
         '--loss_nets',
         type=str,
+        default=['alexnet'],
         nargs='+',
         help='The pretrained loss networks to use for similarity calculations'
     )
@@ -618,7 +612,7 @@ def main():
                     )
                     for net in args.loss_nets if net in architecture_attributes
                 ], [])
-
+            
             for net, layers in runs:
                 loss_network_path = extractor_collector(
                     FeatureExtractor,
@@ -643,6 +637,4 @@ def main():
 
 # When this file is executed independently, execute the main function
 if __name__ == "__main__":
-    #compare()
-    #learn_and_compare()
     main()
