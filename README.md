@@ -3,8 +3,18 @@ This repository contains code for evaluating and analyzing deep perceptual simil
 It has three feature extraction networks available (AlexNet, SqueezeNet, and VGG-16) and five different methods for calculating deep perceptual similarity (compare features by spatial position, ordered by activation strength, averaged over channels, or the sum of spatial and any of the other two).
 There are some additional options available, like whether to use channel-wise normalization of the network features.
 
+As part of that it contains an implementation of the paper ["The Unreasonable Effectiveness of Deep Features as a Perceptual Metric"](https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html) and code for downloading the BAPPS dataset introduced in that paper.
+While the LPIPS training from that paper is implemented, it is not currently guaranteed to be correctly.
+Everything else has been verified to generate the same results.
+
 ## Requirements
 The code has been tested and is working with Python 3.9, PyTorch 1.10.2, Torchvision 0.11.3, and PyTorch-Lightning 1.5.10
+
+The experiment.py file currently uses Wandblogger which requires a "Weights and Biases"-account.
+If you want to run experiment.py either setup WandB or change to another logger.
+
+experiment.py will also be very slow running on CPU, especially if you run training as well.
+The other content should run fine on CPU only.
 
 ## Contents and Execution
 The repo contains test images (images/) for analyzing different networks and calculations methods of deep perceptual similarity as well as code for running such analysis (analysis.py) and visualizing feature maps (feature_map.py).
