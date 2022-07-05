@@ -1,16 +1,12 @@
 # Library imports
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torchvision
 import torchvision.transforms as transforms
 from PIL import Image
 import csv
 
 # File imports
 from loss_networks import FeatureExtractor, \
-    ExtractionModifier, architecture_attributes, extractor_collector
-from dataset_collector import dataset_collector, datasets
+    ExtractionModifier, extractor_collector
 from experiment import DistanceMetric
 
 

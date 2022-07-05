@@ -2,7 +2,6 @@ from math import prod
 import os
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 import torchvision.models as models
 
 # Folder for extractor checkpoints

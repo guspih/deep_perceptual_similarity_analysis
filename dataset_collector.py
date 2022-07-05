@@ -1,14 +1,10 @@
 import os
 import numpy
 import torch
-from torch.utils.data import Dataset, TensorDataset, ConcatDataset
-import torchvision.datasets
-import torchvision.transforms
+from torch.utils.data import Dataset, ConcatDataset
 from torchvision.transforms import ToTensor
 from PIL import Image
-import pathlib
 import requests
-import zipfile
 import tarfile
 '''
 This file contains functions for loading (and if necessary downloading) the
@@ -179,7 +175,7 @@ class MultipleFolderDataset(Dataset):
         image_endings = ['png', 'tif', 'tiff', 'jpg', 'jpeg', 'bmp']
         npy_endings = ['npy']
 
-        ret = {} #= []
+        ret = {}
         for path in self.data_paths[index]:
             ending = path[path.index('.') + 1:]
             folder = path.split('/')[-2]

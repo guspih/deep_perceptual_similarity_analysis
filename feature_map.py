@@ -1,13 +1,10 @@
 # Library imports
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import torchvision
 import torchvision.transforms as transforms
 from PIL import Image
-import csv
 import argparse
-import pathlib
 
 # File imports
 from loss_networks import FeatureExtractor, extractor_collector
