@@ -1,6 +1,6 @@
 # Analysis of Deep Perceptual Similarity metrics
-This repository contains code for evaluating and analyzing deep perceptual similarity.
-It has three feature extraction networks available (AlexNet, SqueezeNet, and VGG-16) and five different methods for calculating deep perceptual similarity (compare features by spatial position, ordered by activation strength, averaged over channels, or the sum of spatial and any of the other two).
+This repository contains the code for evaluating and analyzing deep perceptual similarity that was used in the work ["Identifying and Mitigating Flaws of Deep Perceptual Similarity Metrics"](https://arxiv.org/abs/2207.02512).
+It has three feature extraction networks available (AlexNet, SqueezeNet, and VGG-16) and five different methods for calculating deep perceptual similarity (compare features by spatial position, ordered by activation strength, averaged over channels, and the sum of spatial and any of the other two).
 There are some additional options available, like whether to use channel-wise normalization of the network features.
 
 As part of that it contains an implementation of the paper ["The Unreasonable Effectiveness of Deep Features as a Perceptual Metric"](https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html) and code for downloading the BAPPS dataset introduced in that paper.
@@ -26,3 +26,25 @@ The experiment.py file will automatically collect the BAPPS dataset if it hasn't
 
 dataset_collector.py is only for collecting the BAPPS dataset and is automatically used by experiment.py
 loss_networks.py is used for collecting various pretrained Torchvision networks and is imported by the files that need it.
+
+## Referencing
+If you make a scientific work building on this repository please cite [the paper](https://arxiv.org/abs/2207.02512). BibTex provided below.
+```
+@article{sjogren2022identifying,
+  title={Identifying and Mitigating Flaws of Deep Perceptual Similarity Metrics},
+  author={Sj{\"o}gren, Oskar and Pihlgren, Gustav Grund and Sandin, Fredrik and Liwicki, Marcus},
+  journal={arXiv preprint arXiv:2207.02512},
+  year={2022}
+}
+```
+
+If you use BAPPS or the LPIPS implementation you should additionally cite ["The Unreasonable Effectiveness of Deep Features as a Perceptual Metric"](https://openaccess.thecvf.com/content_cvpr_2018/html/Zhang_The_Unreasonable_Effectiveness_CVPR_2018_paper.html). BibTex below.
+```
+@inproceedings{zhang2018unreasonable,
+  author = {Zhang, Richard and Isola, Phillip and Efros, Alexei A. and Shechtman, Eli and Wang, Oliver},
+  title = {The Unreasonable Effectiveness of Deep Features as a Perceptual Metric},
+  booktitle = {Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
+  month = {June},
+  year = {2018}
+} 
+```
