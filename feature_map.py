@@ -69,7 +69,77 @@ def show_feature_map(loss_network_path, image_ids):
         for y in ys:
             to_pil(y.detach()).resize((768,512),resample=Image.BOX).show()
             input()
+
+
+def two_feature_map(loss_network_path, image_ids):
+    '''
+    Takes a path to a network and a list of strings identifying an image.
+    Finds the first two image with those strings in its path and displays the
+    feauture maps of the network for those image and the difference between maps.
+    Send terminal inputs to generate next feature map. Send 'l' to go to the next layer
+    Args:
+        loss_network_path (str): Path to a network with feature extraction
+        image_ids ([str]): List of strings used to identify an image
+    '''
+
+    # Transforms to get image into a preferable format for Torchvision
+    image_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((0.485,0.456,0.406),(0.229,0.224,0.225))
+    ])
+
+    # Load loss network
+    loss_network = torch.load(loss_network_path)
+
+    # Find the images and augs from ids
+    images = []
+    for dir in image_dir.iterdir():
+        if not dir.is_dir() or dir.stem == 'ref':
+            continue
+        for image in dir.iterdir():
+            if all([i in str(image) for i in image_ids]):
+                images.append(image)
+        if len(images) > 1:
+            break
     
+    # Load images
+    images = torch.cat([
+        image_transform(
+            Image.open(i).convert(mode='RGB')
+        ).unsqueeze(dim=0) for i in images
+    ], dim=0)
+
+    # Get feature maps
+    maps = loss_network(images)
+    cn_maps = [F.normalize(y) for y in maps]
+    neg_maps = [(y[0]-y[1]).abs().unsqueeze(dim=0) for y in maps]
+    neg_cn_maps = [(y[0]-y[1]).abs().unsqueeze(dim=0) for y in cn_maps]
+
+
+
+    for i, (y, cn_y, neg_y, neg_cn_y) in enumerate(zip(maps, cn_maps, neg_maps, neg_cn_maps)):
+        sz = y.size()
+        neg_sz = neg_y.size()
+        m = y.permute(1,2,0,3).reshape(sz[1],sz[2],sz[0]*sz[3])
+        cn_m = cn_y.permute(1,2,0,3).reshape(sz[1],sz[2],sz[0]*sz[3])
+        neg_m = neg_y.permute(1,2,0,3).reshape(neg_sz[1],neg_sz[2],neg_sz[0]*neg_sz[3])
+        neg_cn_m = neg_cn_y.permute(1,2,0,3).reshape(neg_sz[1],neg_sz[2],neg_sz[0]*neg_sz[3])
+
+        
+        s, indices = torch.sort(torch.mean(neg_cn_m, dim=(1,2))/(torch.mean(cn_m.abs(), dim=(1,2)) + 0.01), dim=0)
+
+
+        maps[i] = torch.cat([torch.cat([m,neg_m], dim=2), torch.cat([cn_m, neg_cn_m], dim=2)], dim=1)[indices]
+
+    # Show feature maps
+    to_pil = torchvision.transforms.ToPILImage()
+    for ys in maps:
+        for y in ys:
+            to_pil(y.detach()).resize((768,512),resample=Image.BOX).show()
+            x = input()
+            if 'l' in x:
+                break
+
 
 def run_feature_mapping():
     '''
@@ -131,7 +201,8 @@ def run_feature_mapping():
         path = squeezenet_path
 
     # Visualize the feature maps
-    show_feature_map(path, args.image)
+    #show_feature_map(path, args.image)
+    two_feature_map(path, args.image)
 
 
 # When this file is executed independently, execute the main function
