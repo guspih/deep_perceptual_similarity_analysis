@@ -275,8 +275,8 @@ class Learner(pl.LightningModule):
         if self.large_logit:
             eps = 0.1
             prediction = self.logit(torch.stack(
-                (d0,d1,d0-d1,d0/(d1+eps),d1/(d0+eps))
-            ).view(-1,5,1,1)).view(-1)
+                (d0,d1,d0-d1,d0/(d1+eps),d1/(d0+eps)), dim=1
+            ).view(-1,5,1,1)).view(-1) 
         else:
             prediction = self.logit(torch.stack((d0,d1),dim=1)).view(-1)
         loss = self.loss_function(prediction, label)
